@@ -1,12 +1,32 @@
 version: "3.8"
 
 services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: tasbeh
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   studentapi:
     image: qalandar01/studentapi:latest
     container_name: studentapi
+    build: .
     ports:
       - "8080:8080"
     restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tasbeh
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root123
+    depends_on:
+      - postgres
 
   watchtower:
     image: containrrr/watchtower
@@ -14,3 +34,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --interval 30
+
+volumes:
+  pgdata:
